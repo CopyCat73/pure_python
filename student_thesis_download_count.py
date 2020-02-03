@@ -4,14 +4,14 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element, SubElement
 import re
 
-def construct_xml(input_size,input_offset):
+def construct_xml(input_size,input_offset, before_date, after_date):
     downloadsQuery = Element('downloadsQuery')
     family = SubElement(downloadsQuery, 'family')
     family.text = 'StudentThesis'
     accessTimeBeforeDate = SubElement(downloadsQuery, 'accessTimeBeforeDate')
-    accessTimeBeforeDate.text = '2020-01-01T00:00:00.001Z'
+    accessTimeBeforeDate.text = before_date
     accessTimeAfterDate = SubElement(downloadsQuery, 'accessTimeAfterDate')
-    accessTimeAfterDate.text = '2019-12-31T00:00:00.001Z'
+    accessTimeAfterDate.text = after_date
     size = SubElement(downloadsQuery, 'size')
     size.text = str(input_size)
     offset = SubElement(downloadsQuery, 'offset')
@@ -20,8 +20,10 @@ def construct_xml(input_size,input_offset):
     navigationLink.text = 'true'
     return ET.tostring(downloadsQuery, method='xml')
 
-api_key = 'your key here'
+api_key = 'your api key here'
 api_url = 'https://pureserver/ws/api/516/downloads'
+before_date = '2020-01-01T00:00:00.001Z'
+after_date = '2019-12-31T00:00:00.001Z'
 headers = {'Content-Type': 'application/xml', 'api-key': api_key }
 namespaces = {'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
 
@@ -37,7 +39,7 @@ while number_found:
     step +=1
     count = step * size
     offset = count - size
-    xml = construct_xml(size,offset)
+    xml = construct_xml(size,offset,before_date,after_date)
     response = requests.post(api_url, data=xml, headers=headers)
     tree = ET.fromstring(response.content)
     downloads = tree.findall('.//items/download',namespaces)
